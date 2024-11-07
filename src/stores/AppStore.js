@@ -2,20 +2,20 @@ import { makeAutoObservable } from 'mobx';
 
 class AppStore {
     teams = [];
-    questions = [ {
-        id: '',
-        categoryId: '',
-        text: '',
-        answers: [],
-    }];
+    questions = [];
     categories = [];
     results = {};
     settings = {
         categories: [],
+        questions: [],
     };
 
     constructor() {
         makeAutoObservable(this);
+    }
+
+    setSettings(settings) {
+        this.settings = settings;
     }
 
     getSettings() {

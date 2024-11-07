@@ -7,15 +7,19 @@ class AppController {
 
     async initializeApp() {
         try {
-            const [teamsData, questionsData, categoriesData] = await Promise.all([
+            const [teamsData, questionsData, categoriesData, resultsData, settingsData] = await Promise.all([
                 this.fetchTeams(),
                 this.fetchQuestions(),
-                this.fetchCategories()
+                this.fetchCategories(),
+                this.fetchResults(),
+                this.fetchSettings(),
             ]);
 
             this.store.setTeams(teamsData);
             this.store.setQuestions(questionsData);
             this.store.setCategories(categoriesData);
+            this.store.setResults(resultsData);
+            this.store.setSettings(settingsData);
         } catch (error) {
             console.error('Error initializing app:', error);
         }
@@ -35,6 +39,16 @@ class AppController {
     async fetchCategories() {
         const categoriesData = localStorage.getItem('categories');
         return categoriesData ? JSON.parse(categoriesData) : [];
+    }
+
+    async fetchResults() {
+        const resultsData = localStorage.getItem('results');
+        return resultsData ? JSON.parse(resultsData) : {};
+    }
+
+    async fetchSettings() {
+        const settingsData = localStorage.getItem('settings');
+        return settingsData ? JSON.parse(settingsData) : {};
     }
 
     saveData() {
@@ -144,6 +158,7 @@ class AppController {
 
     saveSettings(newSettings) {
         this.store.saveSettings(newSettings);
+        this.saveData();
     }
 
     exportConfig() {
