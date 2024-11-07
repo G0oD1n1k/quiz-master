@@ -154,6 +154,18 @@ class AppController {
         this.store.importConfig(config);
         this.saveData();
     }
+
+    addCategorySetting(categoryId, timePerQuestion) {
+        this.store.addCategorySetting(categoryId, timePerQuestion);
+    }
+
+    updateCategorySetting(categoryId, timePerQuestion) {
+        this.store.updateCategorySetting(categoryId, timePerQuestion);
+    }
+
+    deleteCategorySetting(categoryId) {
+        this.store.deleteCategorySetting(categoryId);
+    }
 }
 
 export const appController = new AppController();

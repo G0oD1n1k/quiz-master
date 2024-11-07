@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     Box,
     Typography,
-    TextField,
     Button,
     Paper,
 } from '@mui/material';
@@ -10,10 +9,6 @@ import { appController } from "../../controllers/app/AppController.jsx";
 
 const SettingsPage = () => {
     const [settings, setSettings] = useState(() => appController.getSettings());
-
-    const handleSettingChange = (key, value) => {
-        setSettings((prev) => ({ ...prev, [key]: value }));
-    };
 
     const handleSaveSettings = () => {
         appController.saveSettings(settings);
@@ -57,14 +52,6 @@ const SettingsPage = () => {
                 <Typography variant="h6" gutterBottom>
                     Game Settings
                 </Typography>
-                <TextField
-                    fullWidth
-                    label="Time per question (seconds)"
-                    type="number"
-                    value={settings.timePerQuestion}
-                    onChange={(e) => handleSettingChange('timePerQuestion', parseInt(e.target.value))}
-                    margin="normal"
-                />
 
                 <Box sx={{ mt: 3 }}>
                     <Button variant="contained" color="primary" onClick={handleSaveSettings}>

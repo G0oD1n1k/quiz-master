@@ -11,7 +11,7 @@ class AppStore {
     categories = [];
     results = {};
     settings = {
-        timePerQuestion: 30,
+        categories: [],
     };
 
     constructor() {
@@ -34,6 +34,24 @@ class AppStore {
             results: this.results,
             teams: this.teams,
         };
+    }
+
+    addCategorySetting(categoryId, timePerQuestion) {
+        if (!this.settings.categories) {
+            this.settings.categories = [];
+        }
+        this.settings.categories.push({ categoryId, timePerQuestion });
+    }
+
+    updateCategorySetting(categoryId, timePerQuestion) {
+        const index = this.settings.categories.findIndex((c) => c.categoryId === categoryId);
+        if (index !== -1) {
+            this.settings.categories[index].timePerQuestion = timePerQuestion;
+        }
+    }
+
+    deleteCategorySetting(categoryId) {
+        this.settings.categories = this.settings.categories.filter((c) => c.categoryId !== categoryId);
     }
 
     importConfig(config) {
@@ -89,7 +107,6 @@ class AppStore {
         }
     }
 
-    // Методы для работы с вопросами
     setQuestions(questions) {
         this.questions = questions;
     }
