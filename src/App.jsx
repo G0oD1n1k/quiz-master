@@ -6,6 +6,7 @@ import TeamFormationPage from "./pages/team/TeamFormationPage.jsx";
 import NavigationBar from "./components/navigation/NavigationBar.jsx";
 import QuestionEditorPage from "./pages/question/QuestionEditorPage.jsx";
 import SettingsPage from "./pages/settings/SettingsPage.jsx";
+import GamePage from "./pages/game/GamePage.jsx";
 
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
                         <Route path="/teams" element={<TeamFormationPage />} />
                         <Route path="/question" element={<QuestionEditorPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="/game" element={<GamePage />} />
                     </Routes>
                 </Box>
             </Container>
