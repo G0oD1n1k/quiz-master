@@ -184,7 +184,26 @@ class AppStore {
         if (!this.results[teamId]) {
             this.results[teamId] = { score: 0, answers: [] };
         }
-        this.results[teamId].answers.push({ questionId, isCorrect });
+        if (isCorrect) {
+            this.results[teamId].answers.push({ questionId, isCorrect });
+        }
+
+        const questionIndex = this.settings.questions.findIndex(q => q.questionId === questionId);
+        if (questionIndex !== -1) {
+            this.settings.questions[questionIndex].answered = true;
+        }
+    }
+
+    resetQuestionsAnswers() {
+        this.settings.questions.map(a => a).forEach((a) => {console.log(a)});
+    }
+
+    resetGame() {
+        this.results = {};
+
+        this.settings.questions.forEach(question => {
+            question.answered = false;
+        });
     }
 }
 

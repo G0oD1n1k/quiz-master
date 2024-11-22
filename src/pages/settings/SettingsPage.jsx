@@ -95,7 +95,7 @@ const SettingsPage = () => {
                     >
                         <Typography>Category Settings</Typography>
                     </AccordionSummary>
-                    <AccordionDetails sx={{ maxHeight: settings.categories.length > 4 ? 360 : 'auto', overflowY: 'auto' }}>
+                    <AccordionDetails sx={{ maxHeight: settings?.categories?.length > 4 ? 360 : 'auto', overflowY: 'auto' }}>
                         {settings?.categories?.map((category, index) => (
                             <Box key={category.categoryId} sx={{ mb: 2 }}>
                                 <Typography variant="h6">{categories.find(c => c.id === category.categoryId)?.name}</Typography>
@@ -124,7 +124,7 @@ const SettingsPage = () => {
                     >
                         <Typography>Question Settings</Typography>
                     </AccordionSummary>
-                    <AccordionDetails sx={{ maxHeight: filteredQuestions.length > 4 ? 360 : 'auto', overflowY: 'auto' }}>
+                    <AccordionDetails sx={{ maxHeight: filteredQuestions?.length > 4 ? 360 : 'auto', overflowY: 'auto' }}>
                         <Box sx={{ mb: 2 }}>
                             <Select
                                 value={selectedCategory}

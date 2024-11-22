@@ -181,6 +181,26 @@ class AppController {
     deleteCategorySetting(categoryId) {
         this.store.deleteCategorySetting(categoryId);
     }
+
+    updateTeamScore(id, number) {
+        this.store.updateTeamScore(id, number);
+        this.saveData();
+    }
+
+    resetQuestionsAnswers() {
+        this.store.resetQuestionsAnswers();
+        this.saveData();
+    }
+
+    addTeamAnswer(teamId, questionId, isCorrect) {
+        this.store.addTeamAnswer(teamId, questionId, isCorrect);
+        this.saveData();
+    }
+
+    resetGame() {
+        this.store.resetGame();
+        this.saveData();
+    }
 }
 
 export const appController = new AppController();

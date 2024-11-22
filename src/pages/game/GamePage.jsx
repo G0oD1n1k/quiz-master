@@ -1,166 +1,167 @@
-// src/pages/game/GamePage.jsx
-import { useState, useEffect } from 'react';
-import { Box, Button, Typography, Paper, LinearProgress } from '@mui/material';
-import { appController } from '../../controllers/app/AppController.jsx';
-import WheelComponent from '../../components/wheel/WheelComponent.jsx';
-import QuestionDisplay from '../../components/game/QuestionDisplay.jsx';
-import AnswerInput from '../../components/game/AnswerInput.jsx';
-import ResultDisplay from '../../components/game/ResultDisplay.jsx';
-import TeamIndicator from '../../components/game/TeamIndicator.jsx';
-import { observer } from 'mobx-react-lite';
+import {useEffect, useState} from 'react';
+import {Box, Typography, Button, Stack} from '@mui/material';
+import WheelOfFortune from "../../components/game/WheelOfFortune.jsx";
+import CurrentTeamIndicator from "../../components/game/CurrentTeamIndicator.jsx";
+import QuestionSelection from "../../components/game/QuestionSelection.jsx";
+import QuestionProgress from "../../components/game/QuestionProgress.jsx";
+import AnswerSelection from "../../components/game/AnswerSelection.jsx";
+import AnswerProgress from "../../components/game/AnswerProgress.jsx";
+import GameEnd from "../../components/game/GameEnd.jsx";
+import AnswerCheck from "../../components/game/AnswerCheck.jsx";
+import {appController} from "../../controllers/app/AppController.jsx";
 
-const GamePage = observer(() => {
-    const { teams, categories, questions, results } = appController.store;
-    const [currentTeam, setCurrentTeam] = useState(teams[0]);
+const GamePage = () => {
+    const [currentTeam, setCurrentTeam] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(null);
+    const [currentAnswer, setCurrentAnswer] = useState(null);
+    const [nextTeam, setNextTeam] = useState(null);
+    const [gameState, setGameState] = useState('wheel'); // wheel, question, answer, check, end
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [isSpinning, setIsSpinning] = useState(false);
-    const [isReading, setIsReading] = useState(false);
-    const [isAnswering, setIsAnswering] = useState(false);
+    const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [isGameOver, setIsGameOver] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [transferQuestion, setTransferQuestion] = useState(false);
+
+    const { teams, settings } = appController.store;
 
     useEffect(() => {
-        if (isReading) {
-            const timer = setTimeout(() => {
-                setIsReading(false);
-                setIsAnswering(true);
-            }, 5000); // 5 seconds for reading the question
-            return () => clearTimeout(timer);
+        if (teams.length > 0) {
+            setCurrentTeam(teams[0]);
+            setNextTeam(teams[0]);
         }
-    }, [isReading]);
+    }, [teams]);
 
-    useEffect(() => {
-        if (isAnswering) {
-            const timer = setInterval(() => {
-                setTimeLeft((prevTime) => prevTime - 1);
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [isAnswering]);
-
-    useEffect(() => {
-        if (timeLeft <= 0) {
-            handleSubmitAnswer();
-        }
-    }, [timeLeft]);
-
-    const handleSpin = () => {
-        setIsSpinning(true);
-        // Logic to spin the wheel and select a category
-        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-        setSelectedCategory(randomCategory);
-        setIsSpinning(false);
+    const handleNewGame = () => {
+        appController.resetGame();
     };
 
-    const handleReadQuestion = () => {
-        setIsReading(true);
-        // Logic to select a random question from the selected category
-        const filteredQuestions = questions.filter(q => q.categoryId === selectedCategory.id && !q.answered);
-        if (filteredQuestions.length === 0) {
-            setIsReading(false);
-            setIsSpinning(false);
-            setSelectedCategory(null);
-            alert('No questions available in this category.');
-            return;
-        }
-        const randomQuestion = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
-        setCurrentQuestion(randomQuestion);
-        setTimeLeft(randomQuestion.timePerQuestion);
+    const handleSpinWheel = (category, question) => {
+        setSelectedCategory(category);
+        setCurrentQuestion(question);
+        setGameState('question');
+    };
+
+    const handleSelectQuestion = (question) => {
+        setSelectedQuestion(question);
+        setGameState('answer');
     };
 
     const handleSelectAnswer = (answer) => {
         setSelectedAnswer(answer);
-    };
-
-    const handleSubmitAnswer = () => {
-        // Logic to check the answer and update the score
-        if (selectedAnswer) {
-            const scoreMultiplier = selectedAnswer.isCorrect ? 1 : 0;
-            // appController.handleTeamAnswer(currentTeam.id, currentQuestion.id, selectedAnswer.isCorrect, currentQuestion.points * scoreMultiplier);
-        } else {
-            // appController.handleTeamAnswer(currentTeam.id, currentQuestion.id, false, 0);
-        }
-        setIsAnswering(false);
-        setSelectedAnswer(null);
-        setCurrentQuestion(null);
-        setSelectedCategory(null);
-        setIsReading(false);
-        setIsSpinning(false);
-        setTimeLeft(0);
-
-        // Check if the game is over
-        const allQuestionsAnswered = questions.every(q => q.answered);
-        if (allQuestionsAnswered) {
-            setIsGameOver(true);
-        } else {
-            handleNextTurn();
-        }
+        setGameState('check');
     };
 
     const handleNextTurn = () => {
-        // Logic to move to the next team
-        const currentIndex = teams.findIndex(team => team.id === currentTeam.id);
-        const nextIndex = (currentIndex + 1) % teams.length;
-        setCurrentTeam(teams[nextIndex]);
+        setCurrentTeam()
+        if (isGameOver()) {
+            setGameState('end');
+        } else {
+            setGameState('wheel');
+            setSelectedQuestion(null);
+            setSelectedAnswer(null);
+            setProgress(0);
+            setTransferQuestion(false);
+            setCurrentTeam(nextTeam);
+            setNextTeam(getNextTeam(nextTeam));
+        }
+    };
+
+    const handleTransferQuestion = () => {
+        setTransferQuestion(true);
+        setGameState('transfer');
     };
 
     const handleEndGame = () => {
-        // Logic to end the game and show results
-        setIsGameOver(true);
+        setGameState('end');
+    };
+
+    const handleProgressComplete = () => {
+        setGameState('answer');
+    };
+
+    const handleSelectTeam = (team) => {
+        setCurrentTeam(team);
+        setNextTeam(getNextTeam(team));
+        setGameState('question');
+    };
+
+    const isGameOver = () => {
+        return settings.questions.every(q => q.answered);
+    };
+
+    const getNextTeam = (currentTeam) => {
+        const currentIndex = teams.findIndex(team => team.id === currentTeam.id);
+        return teams[(currentIndex + 1) % teams.length];
     };
 
     return (
         <Box sx={{ width: '100%', mx: 'auto' }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                Game Page
+                Game Screen
             </Typography>
-
-            {isGameOver ? (
-                <ResultDisplay results={results} onEndGame={handleEndGame} />
-            ) : (
+            <CurrentTeamIndicator team={currentTeam} />
+            {gameState === 'wheel' && (
                 <>
-                    <TeamIndicator team={currentTeam} />
-
-                    <Paper elevation={3} sx={{ p: 3, width: '100%' }}>
-                        <WheelComponent
-                            segments={categories.map(category => category.name)}
-                            segColors={categories.map(category => category.color)}
-                            winningSegment={selectedCategory?.name}
-                            onFinished={(segment) => setSelectedCategory(segment)}
-                            buttonText={isSpinning ? 'Spinning...' : 'Spin the Wheel'}
-                            isOnlyOnce={false}
-                            size={290}
-                        />
-                        <Button variant="contained" onClick={handleSpin} disabled={isSpinning}>
-                            Spin the Wheel
-                        </Button>
-                    </Paper>
-
-                    {selectedCategory && (
-                        <QuestionDisplay
-                            question={currentQuestion}
-                            onReadQuestion={handleReadQuestion}
-                            onSelectAnswer={handleSelectAnswer}
-                            isReading={isReading}
-                            isAnswering={isAnswering}
-                            timeLeft={timeLeft}
-                        />
-                    )}
-
-                    {currentQuestion && isAnswering && (
-                        <AnswerInput
-                            answers={currentQuestion.answers}
-                            onSelectAnswer={handleSelectAnswer}
-                            onSubmitAnswer={handleSubmitAnswer}
-                            selectedAnswer={selectedAnswer}
-                        />
-                    )}
+                    <WheelOfFortune onSpin={handleSpinWheel} />
+                </>
+            )}
+            {gameState === 'question' && (
+                <>
+                    <QuestionSelection
+                        selectedCategory={selectedCategory}
+                        onSelectQuestion={handleSelectQuestion}
+                    />
+                    <QuestionProgress onProgressComplete={handleProgressComplete} />
+                    <Button variant="contained" onClick={handleTransferQuestion}>
+                        Передать вопрос
+                    </Button>
+                </>
+            )}
+            {gameState === 'transfer' && (
+                <>
+                    <Typography variant="h6">Выберите команду для передачи вопроса</Typography>
+                    <Stack spacing={2} direction="row">
+                        {teams.map(team => (
+                            <Button
+                                key={team.id}
+                                variant="contained"
+                                onClick={() => handleSelectTeam(team)}
+                            >
+                                {team.name}
+                            </Button>
+                        ))}
+                    </Stack>
+                </>
+            )}
+            {gameState === 'answer' && (
+                <>
+                    <AnswerSelection
+                        question={selectedQuestion}
+                        onSelectAnswer={handleSelectAnswer}
+                    />
+                    <AnswerProgress question={selectedQuestion} onProgressComplete={handleNextTurn} />
+                    <Button variant="contained" onClick={handleTransferQuestion}>
+                        Передать вопрос
+                    </Button>
+                </>
+            )}
+            {gameState === 'check' && (
+                <>
+                    <AnswerCheck
+                        question={selectedQuestion}
+                        selectedAnswer={selectedAnswer}
+                        currentTeam={currentTeam}
+                        onNextTurn={handleNextTurn}
+                    />
+                </>
+            )}
+            {gameState === 'end' && (
+                <>
+                    <GameEnd onEndGame={handleEndGame} />
                 </>
             )}
         </Box>
     );
-});
+};
 
 export default GamePage;

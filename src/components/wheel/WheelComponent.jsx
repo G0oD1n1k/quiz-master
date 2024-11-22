@@ -10,7 +10,7 @@ const WheelComponent = ({
                             contrastColor = 'white',
                             buttonText = 'Spin',
                             isOnlyOnce = true,
-                            size = window.innerWidth,
+                            size = 300,
                             upDuration = 100,
                             downDuration = 1000,
                             fontFamily = 'proxima-nova',
@@ -254,7 +254,7 @@ const WheelComponent = ({
 WheelComponent.propTypes = {
     segments: PropTypes.arrayOf(PropTypes.string).isRequired,
     segColors: PropTypes.arrayOf(PropTypes.string).isRequired,
-    winningSegment: PropTypes.string.isRequired,
+    winningSegment: PropTypes.string,
     onFinished: PropTypes.func.isRequired,
     primaryColor: PropTypes.string,
     contrastColor: PropTypes.string,
